@@ -15,8 +15,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.SwingConstants;
 
-public class Principal {
-
+/**
+ * TODO: Explicar que es esta clase
+ */
+  public class Principal {
+ 
+	/**
+	 * Documentar los atributos  
+	 */
 	private JFrame frame;
 	private JTextField Nombre;
 	private JTextField Password;
@@ -84,9 +90,9 @@ public class Principal {
 		Nombre.setHorizontalAlignment(SwingConstants.CENTER);
 		Nombre.setFont(new Font("Arial", Font.PLAIN, 15));
 		Nombre.setBounds(151, 116, 202, 30);
-		frame.getContentPane().add(Nombre);
 		Nombre.setColumns(10);
-
+		frame.getContentPane().add(Nombre);
+		
 		
 		Password = new JTextField();
 		Password.setHorizontalAlignment(SwingConstants.CENTER);
