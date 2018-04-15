@@ -7,6 +7,10 @@ import java.awt.Font;
 import java.awt.Color;
 import javax.swing.SwingConstants;
 
+/**
+ * Esta clase produce una nueva ventana en la que aparece el autor, versión y pequeña descripción del juego  
+ *
+ */
 public class Info extends JFrame{
 
 	private JFrame frame;

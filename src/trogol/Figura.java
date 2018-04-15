@@ -5,7 +5,10 @@ import java.awt.Graphics;
 
 import javax.swing.JFrame;
 
-
+/**
+ * Esta clase recibe y devuelve las coordenadas de la esquina superior izquierda, ancho y alto de una figura (un rectángulo)
+ * Con esos datos luego se dibuja y se oculta un rectángulo
+ */
 public class Figura extends JuegoTrogols{
 
 	static protected int x;

@@ -1,6 +1,9 @@
 package trogol;
 
-
+/**
+ *Esta clase almacena los datos de usuario y contraseña para ser comprobados en la clase Principal 
+ *
+ */
 public class Usuario extends Principal{
 	private String usuario;
 	private String password;

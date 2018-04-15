@@ -18,8 +18,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ *En esta clase se produce el desarrollo del juego trogols
+ */
 public class JuegoTrogols extends JFrame{
 
+/**
+ *  No sé que poner xD
+ */
 	private JFrame frame;
 	private JPanel panel_1;
 //	private Info Info1=new Info();

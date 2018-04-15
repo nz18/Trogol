@@ -17,11 +17,19 @@ import javax.swing.SwingConstants;
 
 /**
  * TODO: Explicar que es esta clase
+ * En esta clase se produce el login del jugador, comprobándose que ni usuario ni contraseña estén vacíos
  */
   public class Principal {
  
 	/**
 	 * Documentar los atributos  
+	 * 
+	 * La ventana en la que aparece el login es el JFrame.
+	 * En Nombre y Password escribimos los datos necesarios para formar un usuario.
+	 * Los diferentes JLabel muestran los mensajes de bienvenido o error según los datos de usuario.
+	 * Juego1 se hace visible si los datos de usuario son correctos.
+	 * Estos datos de usuario son almacenados en la clase Usuario.
+	 * 
 	 */
 	private JFrame frame;
 	private JTextField Nombre;
