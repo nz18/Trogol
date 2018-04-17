@@ -1,2 +1,0 @@
-# Trogol
-Trogols
