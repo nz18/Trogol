@@ -2,12 +2,6 @@ package trogol;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 /**
@@ -20,7 +14,7 @@ public class Imagen extends Figura{
     
     Imagen (String archivoImagen)
     {
-    	super(0,0,0,0);
+    	super(Figura.x,Figura.y,Figura.ancho,Figura.alto);
 		img=new ImageIcon(getClass().getResource("/fantasma.jpg")).getImage(); 
     	super.setAlto(img.getHeight(null));
 		super.setAncho(img.getWidth(null));
@@ -29,6 +23,7 @@ public class Imagen extends Figura{
     @Override
     public void Mostrar(Graphics g) {
     	g.drawImage(img, super.getX(), super.getY(), null);
+    	
     }
 
 		

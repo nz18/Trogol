@@ -60,7 +60,9 @@ public class Figura extends JuegoTrogols{
 	    
 	 public int getAncho()
 	    {
-	       return ancho;
+		 
+
+		 return ancho;
 	    }
 
 	 public void Mostrar(Graphics g)
@@ -79,11 +81,6 @@ public class Figura extends JuegoTrogols{
 	    	 
 		   return;
 	    }
-
-	public void getComponent(Graphics g) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	
 }

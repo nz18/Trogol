@@ -16,8 +16,10 @@ import javax.swing.SwingConstants;
 import javax.swing.JSpinner;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Random;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.SpinnerNumberModel;
 
 /**
  * En esta clase se produce el desarrollo del juego trogols
@@ -32,18 +34,29 @@ public class JuegoTrogols extends JFrame {
 	private Info Info1 = new Info();
 	private JLabel lblUsuario;
 	private JPanel Panel;
-	private Graphics g;
-	private Graphics f;
-	int x1 = 10, y1 = 10, ancho1 = 50, alto1 = 50;
+	protected Graphics g;
+	protected Graphics f;
+	int x1, y1, ancho1, alto1;
 	private Usuario user;
 	private JButton btnEmpezar;
-	private JButton btnArriba;
-
 	public void setUsuario(Usuario Usuario1) {
 		user = Usuario1;
 	}
-
-	private Imagen img;
+	private int maxFantasmas=4;
+	private int maxComida=5;
+	private int i=0;
+	private int j=0;
+	private JSpinner Puntos;
+	private JSpinner Energía;
+	private JLabel GameOver;
+	private int [] posGhostX= new int[maxFantasmas];
+	private int [] posGhostY= new int[maxFantasmas];
+	private int posMonsX;
+	private int posMonsY;
+	private int [] posComidaX= new int[maxComida];
+	private int [] posComidaY= new int[maxComida];
+	Boolean comp1=false;
+	Boolean comp2=false;
 
 	/**
 	 * Launch the application.
@@ -76,7 +89,7 @@ public class JuegoTrogols extends JFrame {
 
 		lblUsuario = new JLabel("Usuario:");
 		lblUsuario.setFont(new Font("Arial", Font.ITALIC, 15));
-		lblUsuario.setBounds(126, 84, 205, 26);
+		lblUsuario.setBounds(121, 78, 205, 26);
 		getContentPane().add(lblUsuario);
 
 		btnEmpezar = new JButton("Empezar");
@@ -84,8 +97,16 @@ public class JuegoTrogols extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				lblUsuario.setText("Usuario: " + user.CualesmiUsuario());
-				Pintar();
-
+				while(i<maxFantasmas) {
+					PintarGhost();
+				}
+				while(i<maxComida) {
+					PintarComida();
+				}
+				while(j<1) {
+					PintarMons();
+				    j=j+1;
+				}
 			}
 		});
 		btnEmpezar.setFont(new Font("Arial", Font.PLAIN, 15));
@@ -105,9 +126,19 @@ public class JuegoTrogols extends JFrame {
 		getContentPane().add(btnInfo);
 
 		Panel = new JPanel();
-		Panel.setBackground(new Color(255, 255, 255));
-		Panel.setBounds(34, 139, 400, 320);
+		Panel.setBackground(Color.WHITE);
+		Panel.setBounds(31, 155, 450, 350);
 		getContentPane().add(Panel);
+		Panel.setLayout(null);
+		
+		GameOver = new JLabel("<html>---- G ----------------<br>-------- A ------------<br>---------- M ---------<br>------------- E -------<br>---- O ----------------<br>-------- V ------------<br>---------- E ----------<br>------------- R -------<html>");
+		GameOver.setBounds(87, 10, 234, 300);
+		Panel.add(GameOver);
+		GameOver.setHorizontalAlignment(SwingConstants.CENTER);
+		GameOver.setForeground(Color.RED);
+		GameOver.setBackground(Color.WHITE);
+		GameOver.setFont(new Font("Arial Black", Font.BOLD, 25));
+		GameOver.setVisible(false);
 
 		panel_1 = new JPanel();
 		panel_1.setBackground(Color.CYAN);
@@ -131,26 +162,47 @@ public class JuegoTrogols extends JFrame {
 		lblInformacin.setBounds(41, 10, 91, 18);
 		panel_1.add(lblInformacin);
 
-		JSpinner Puntos = new JSpinner();
+		Puntos = new JSpinner();
+		Puntos.setEnabled(false);
 		Puntos.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		Puntos.setBounds(96, 49, 36, 33);
 		panel_1.add(Puntos);
 
-		JSpinner Energía = new JSpinner();
+		Energía = new JSpinner();
+		Energía.setEnabled(false);
+		Energía.setModel(new SpinnerNumberModel(10, 0, 100, 1));
 		Energía.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		Energía.setBounds(96, 106, 36, 33);
 		panel_1.add(Energía);
 
-		btnArriba = new JButton("Arriba");
+		JButton btnArriba = new JButton("Arriba");
 		btnArriba.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnArriba.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				moverArriba();
+				
+				try {
+					Energía.setValue(Energía.getPreviousValue());
+					Puntos.setValue(Puntos.getNextValue());
+					f = Panel.getGraphics();
+					Personaje mons = new Personaje("../Imagenes/monster.jpg");
+					mons.Ocultar(f, Panel.getBackground());
+					mons.moverArriba(0);
+					PintarMons();
+					ComprobarGhost();
+					ComprobarComida1();
+					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
+					ghost.run();
+									
+		        } catch (Exception e) {
+		        	Energía.setValue(0);
+		        	GameOver.setVisible(true);
+		           
+		        }								
 
 			}
 		});
-		btnArriba.setBounds(530, 352, 85, 21);
+		btnArriba.setBounds(554, 352, 85, 21);
 		getContentPane().add(btnArriba);
 
 		JButton btnIzquierda = new JButton("Izquierda");
@@ -158,10 +210,27 @@ public class JuegoTrogols extends JFrame {
 		btnIzquierda.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				moverIzq();
+				try {
+					Energía.setValue(Energía.getPreviousValue());
+					Puntos.setValue(Puntos.getNextValue());
+					f = Panel.getGraphics();
+					Personaje mons = new Personaje("../Imagenes/monster.jpg");
+					mons.Ocultar(f, Panel.getBackground());
+					mons.moverIzquierda(0);
+					PintarMons();
+					ComprobarGhost();
+					ComprobarComida1();
+					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
+					ghost.run();
+									
+		        } catch (Exception e) {
+		        	Energía.setValue(0);
+		        	GameOver.setVisible(true);
+		        }
+
 			}
 		});
-		btnIzquierda.setBounds(472, 383, 99, 21);
+		btnIzquierda.setBounds(491, 383, 99, 21);
 		getContentPane().add(btnIzquierda);
 
 		JButton btnDerecha = new JButton("Derecha");
@@ -169,21 +238,81 @@ public class JuegoTrogols extends JFrame {
 		btnDerecha.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				moverDcha();
+				try {
+					Energía.setValue(Energía.getPreviousValue());
+					Puntos.setValue(Puntos.getNextValue());
+					f = Panel.getGraphics();
+					Personaje mons = new Personaje("../Imagenes/monster.jpg");
+					mons.Ocultar(f, Panel.getBackground());
+					mons.moverDerecha(Panel.getWidth());
+					PintarMons();
+					ComprobarGhost();
+					ComprobarComida1();
+					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
+					ghost.run();
+									
+		        } catch (Exception e) {
+		        	Energía.setValue(0);
+		        	GameOver.setVisible(true);
+		        }
 			}
 		});
-		btnDerecha.setBounds(581, 383, 91, 21);
+		btnDerecha.setBounds(607, 383, 91, 21);
 		getContentPane().add(btnDerecha);
 
 		JButton btnAbajo = new JButton("Abajo");
 		btnAbajo.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnAbajo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				moverAbajo();
+				try {
+					Energía.setValue(Energía.getPreviousValue());
+					Puntos.setValue(Puntos.getNextValue());
+					f = Panel.getGraphics();
+					Personaje mons = new Personaje("../Imagenes/monster.jpg");
+					mons.Ocultar(f, Panel.getBackground());
+					mons.moverAbajo(Panel.getHeight());
+					PintarMons();
+					ComprobarGhost();
+					ComprobarComida1();
+					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
+					ghost.run();
+									
+		        } catch (Exception e) {
+		        	Energía.setValue(0);
+		        	GameOver.setVisible(true);
+		        }
 			}
 		});
-		btnAbajo.setBounds(530, 414, 85, 21);
+		btnAbajo.setBounds(554, 414, 85, 21);
 		getContentPane().add(btnAbajo);
+		
+		JButton btnHiperespacio = new JButton("Hiperespacio");
+		btnHiperespacio.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				try {
+					Energía.setValue(Energía.getPreviousValue());
+					Puntos.setValue(Puntos.getNextValue());
+					f = Panel.getGraphics();
+					Personaje mons = new Personaje("../Imagenes/monster.jpg");
+					mons.Ocultar(f, Panel.getBackground());
+					mons.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+					PintarMons();
+					ComprobarGhost();
+					ComprobarComida1();
+					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
+					ghost.run();
+									
+		        } catch (Exception e) {
+		        	Energía.setValue(0);
+		        	GameOver.setVisible(true);
+		        }
+			}
+		});
+		btnHiperespacio.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnHiperespacio.setBounds(516, 445, 172, 21);
+		getContentPane().add(btnHiperespacio);
+		
 		initialize();
 
 	}
@@ -197,54 +326,67 @@ public class JuegoTrogols extends JFrame {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	public Imagen Pintar() {
+	public Fantasma PintarGhost() {
 
-		Imagen img = new Imagen("../Imagenes/fantasma.jpg");
+
+		Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
+		for(i=0; i<maxFantasmas; i=i+1) {
+			ghost.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+			g = Panel.getGraphics();
+			posGhostX[i]=ghost.getX();
+			posGhostY[i]=ghost.getY();
+			ghost.Mostrar(g);
+		
+		}
+		return ghost;
+	}
+	public Personaje PintarMons() {
+
+		Personaje mons= new Personaje("../Imagenes/monster.jpg");
 		g = Panel.getGraphics();
-		img.setX(x1);
-		img.setY(y1);
-		img.setAncho(ancho1);
-		img.setAlto(alto1);
-		x1 = img.getX();
-		y1 = img.getY();
-		ancho1 = img.getAncho();
-		alto1 = img.getAlto();
-
-		img.Mostrar(g);
-
-		return img;
+		posMonsX=mons.getX();
+		posMonsY=mons.getY();
+		mons.Mostrar(g);
+				
+		return mons;
 	}
+	public Comida PintarComida() {
 
-	private void moverArriba() {
-		Figura F = new Figura(x1, y1, ancho1, alto1);
-		f = Panel.getGraphics();
-		F.Ocultar(f, Panel.getBackground());
-		y1 = y1 - 10;
-		Pintar();
+		Comida comida= new Comida("../Imagenes/Hamburguesa.jpg");
+		for(i=0; i<maxComida; i=i+1) {
+			comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+			g = Panel.getGraphics();
+			posComidaX[i]=comida.getX();
+			posComidaY[i]=comida.getY();
+			comida.Mostrar(g);
+		}
+		return comida;
 	}
-
-	private void moverAbajo() {
-		Figura F = new Figura(x1, y1, ancho1, alto1);
-		f = Panel.getGraphics();
-		F.Ocultar(f, Panel.getBackground());
-		y1 = y1 + 10;
-		Pintar();
+	public void ComprobarGhost() {
+		for(i=0; i<maxFantasmas; i=i+1) {
+			if(posGhostX[i]==posMonsX&&posGhostY[i]==posMonsY) 
+				Energía.setValue(0);
+		}
 	}
-
-	private void moverIzq() {
-		Figura F = new Figura(x1, y1, ancho1, alto1);
-		f = Panel.getGraphics();
-		F.Ocultar(f, Panel.getBackground());
-		x1 = x1 - 10;
-		Pintar();
+		
+	public void ComprobarComida1() {
+		for(i=0; i<=maxComida||comp1==true; i=i+1) {
+			if(posComidaX[i]==posMonsX&&posComidaY[i]==posMonsY) { 
+				comp1=true;
+			}else {
+				comp1=false;
+			}
+		}
 	}
-
-	private void moverDcha() {
-		Figura F = new Figura(x1, y1, ancho1, alto1);
-		f = Panel.getGraphics();
-		F.Ocultar(f, Panel.getBackground());
-		x1 = x1 + 10;
-		Pintar();
+	public void ComprobarComida2() {
+		for(i=0; i<=maxComida||comp2==true; i=i+1) {
+			for(j=0; i<=maxFantasmas||comp2==true; j=j+1) {
+				if(posComidaX[i]==posMonsX&&posComidaY[i]==posMonsY) { 
+				comp1=true;
+			}else {
+				comp1=false;
+				}
+			}
+		}
 	}
-
 }

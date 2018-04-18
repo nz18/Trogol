@@ -152,7 +152,6 @@ import javax.swing.SwingConstants;
 	public Usuario crearUsuario() {
 				
 		if(Nombre.getText().isEmpty()==false&&Password.getText().isEmpty()==false) {
-			System.out.println(Nombre.getText()+","+Password.getText());
 			lblBienvenido.setVisible(true);
 			lblBienvenido.setText("Bienvenido, "+Nombre.getText()); 
 			lblError.setVisible(false);
@@ -170,6 +169,4 @@ import javax.swing.SwingConstants;
 		
 
 	}
-	
-	
 }
