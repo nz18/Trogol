@@ -14,7 +14,7 @@ public class Imagen extends Figura{
     
     Imagen (String archivoImagen)
     {
-    	super(Figura.x,Figura.y,Figura.ancho,Figura.alto);
+    	super(0,0,0,0);
 		img=new ImageIcon(getClass().getResource("/fantasma.jpg")).getImage(); 
     	super.setAlto(img.getHeight(null));
 		super.setAncho(img.getWidth(null));

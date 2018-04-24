@@ -11,21 +11,21 @@ import javax.swing.JFrame;
  */
 public class Figura extends JuegoTrogols{
 
-	static protected int x;
-	static protected int y;
-	static protected int ancho;
-	static protected int alto;
+	protected int x;
+	protected int y;
+	protected int ancho;
+	protected int alto;
 	
 	Figura(int x, int y, int ancho, int alto){
-		Figura.x=x;
-		Figura.y=y;
-		Figura.ancho=ancho;
-		Figura.alto=alto;
+		this.x=x;
+		this.y=y;
+		this.ancho=ancho;
+		this.alto=alto;
 	}
 	
 	 public void setX(int x)
 	    {
-		 Figura.x=x;
+		 this.x=x;
 	    }
 	    
 	 public int getX()
@@ -35,7 +35,7 @@ public class Figura extends JuegoTrogols{
 	    
 	 public void setY(int y)
 	    {
-	    	Figura.y=y;       
+	    	this.y=y;       
 	    }
 	    
 	 public int getY()
@@ -45,7 +45,7 @@ public class Figura extends JuegoTrogols{
 
 	 public void setAlto(int alto)
 	    {
-	    	Figura.alto=alto;
+	    	this.alto=alto;
 	    }
 	 
 	 public int getAlto()
@@ -55,7 +55,7 @@ public class Figura extends JuegoTrogols{
 	
 	 public void setAncho(int ancho)
 	    {
-	    	Figura.ancho=ancho;  
+	    	this.ancho=ancho;  
 	    }
 	    
 	 public int getAncho()

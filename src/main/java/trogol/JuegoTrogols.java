@@ -4,14 +4,11 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Image;
-
 import javax.swing.SwingConstants;
 import javax.swing.JSpinner;
 import java.awt.event.MouseAdapter;
@@ -32,32 +29,24 @@ public class JuegoTrogols extends JFrame {
 	private JFrame frame;
 	private JPanel panel_1;
 	private Info Info1 = new Info();
+	private GameOver gameOver1=new GameOver();
 	private JLabel lblUsuario;
 	private JPanel Panel;
 	protected Graphics g;
-	protected Graphics f;
-	int x1, y1, ancho1, alto1;
 	private Usuario user;
 	private JButton btnEmpezar;
 	public void setUsuario(Usuario Usuario1) {
 		user = Usuario1;
 	}
-	private int maxFantasmas=4;
-	private int maxComida=5;
-	private int i=0;
-	private int j=0;
+	private int maxMonstruos=1;
+	public int maxFantasmas=4;
+	public int maxComida=5;
 	private JSpinner Puntos;
 	private JSpinner Energía;
-	private JLabel GameOver;
-	private int [] posGhostX= new int[maxFantasmas];
-	private int [] posGhostY= new int[maxFantasmas];
-	private int posMonsX;
-	private int posMonsY;
-	private int [] posComidaX= new int[maxComida];
-	private int [] posComidaY= new int[maxComida];
-	Boolean comp1=false;
-	Boolean comp2=false;
-
+	public Personaje [] vGhost= new Personaje[maxFantasmas];
+	public Personaje [] vComida= new Personaje[maxComida];
+	private Personaje mons;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -97,17 +86,29 @@ public class JuegoTrogols extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				lblUsuario.setText("Usuario: " + user.CualesmiUsuario());
-				while(i<maxFantasmas) {
-					PintarGhost();
+				if(mons!=null) {
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						vGhost[i].Ocultar(g, Panel.getBackground());
+						vGhost[i]=null;
+					}
+					for(int i=0; i<maxComida; i=i+1) {
+						vComida[i].Ocultar(g,Panel.getBackground());
+						vComida[i]=null;
+					}
+					mons.Ocultar(g, Panel.getBackground());
+					mons=null;
 				}
-				while(i<maxComida) {
-					PintarComida();
-				}
-				while(j<1) {
-					PintarMons();
-				    j=j+1;
-				}
+				Energía.setValue(10);
+				Puntos.setValue(0);
+				gameOver1.setVisible(false);
+				InicializarTablero();
+				
+				
+				
+					
+					
 			}
+
 		});
 		btnEmpezar.setFont(new Font("Arial", Font.PLAIN, 15));
 		btnEmpezar.setBounds(516, 40, 99, 30);
@@ -130,15 +131,6 @@ public class JuegoTrogols extends JFrame {
 		Panel.setBounds(31, 155, 450, 350);
 		getContentPane().add(Panel);
 		Panel.setLayout(null);
-		
-		GameOver = new JLabel("<html>---- G ----------------<br>-------- A ------------<br>---------- M ---------<br>------------- E -------<br>---- O ----------------<br>-------- V ------------<br>---------- E ----------<br>------------- R -------<html>");
-		GameOver.setBounds(87, 10, 234, 300);
-		Panel.add(GameOver);
-		GameOver.setHorizontalAlignment(SwingConstants.CENTER);
-		GameOver.setForeground(Color.RED);
-		GameOver.setBackground(Color.WHITE);
-		GameOver.setFont(new Font("Arial Black", Font.BOLD, 25));
-		GameOver.setVisible(false);
 
 		panel_1 = new JPanel();
 		panel_1.setBackground(Color.CYAN);
@@ -163,16 +155,17 @@ public class JuegoTrogols extends JFrame {
 		panel_1.add(lblInformacin);
 
 		Puntos = new JSpinner();
+		Puntos.setModel(new SpinnerNumberModel(0, null, null, 1));
 		Puntos.setEnabled(false);
 		Puntos.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		Puntos.setBounds(96, 49, 36, 33);
+		Puntos.setBounds(96, 49, 66, 33);
 		panel_1.add(Puntos);
 
 		Energía = new JSpinner();
 		Energía.setEnabled(false);
 		Energía.setModel(new SpinnerNumberModel(10, 0, 100, 1));
 		Energía.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		Energía.setBounds(96, 106, 36, 33);
+		Energía.setBounds(96, 106, 66, 33);
 		panel_1.add(Energía);
 
 		JButton btnArriba = new JButton("Arriba");
@@ -184,21 +177,35 @@ public class JuegoTrogols extends JFrame {
 				try {
 					Energía.setValue(Energía.getPreviousValue());
 					Puntos.setValue(Puntos.getNextValue());
-					f = Panel.getGraphics();
-					Personaje mons = new Personaje("../Imagenes/monster.jpg");
-					mons.Ocultar(f, Panel.getBackground());
+					g = Panel.getGraphics();
+					mons.Ocultar(g, Panel.getBackground());
 					mons.moverArriba(0);
-					PintarMons();
-					ComprobarGhost();
-					ComprobarComida1();
-					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
-					ghost.run();
+					mons.Mostrar(g);
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
+							Energía.setValue(-1);
+						}
+						((Fantasma)vGhost[i]).run();
+					}
+					
+					if(IsPosicionVacia(mons,vComida)==false) {
+						AumentarEnergia(mons,vComida);
+						
+					}
+					for(int j=0;j<maxComida; j=j+1){
+						
+						vComida[j].Mostrar(g);
+						mons.Mostrar(g);
+					}
+					if(IsPosicionVacia(mons,vGhost)==false) {
+						Energía.setValue(-1);
+					}
 									
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
-		        	GameOver.setVisible(true);
-		           
-		        }								
+		        	gameOver1.setBounds(50, 50, 450, 350);
+					gameOver1.setVisible(true);
+				}							
 
 			}
 		});
@@ -213,21 +220,35 @@ public class JuegoTrogols extends JFrame {
 				try {
 					Energía.setValue(Energía.getPreviousValue());
 					Puntos.setValue(Puntos.getNextValue());
-					f = Panel.getGraphics();
-					Personaje mons = new Personaje("../Imagenes/monster.jpg");
-					mons.Ocultar(f, Panel.getBackground());
+					g = Panel.getGraphics();
+					mons.Ocultar(g, Panel.getBackground());
 					mons.moverIzquierda(0);
-					PintarMons();
-					ComprobarGhost();
-					ComprobarComida1();
-					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
-					ghost.run();
+					mons.Mostrar(g);
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
+							Energía.setValue(-1);
+						}
+						((Fantasma)vGhost[i]).run();
+					}
+					
+					if(IsPosicionVacia(mons,vComida)==false) {
+						AumentarEnergia(mons,vComida);
+						
+					}
+					for(int j=0;j<maxComida; j=j+1){
+						
+						vComida[j].Mostrar(g);
+						mons.Mostrar(g);
+					}
+					if(IsPosicionVacia(mons,vGhost)==false) {
+						Energía.setValue(-1);
+					}
 									
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
-		        	GameOver.setVisible(true);
-		        }
-
+		        	gameOver1.setBounds(50, 50, 450, 350);
+					gameOver1.setVisible(true);		           
+		        }			
 			}
 		});
 		btnIzquierda.setBounds(491, 383, 99, 21);
@@ -241,20 +262,35 @@ public class JuegoTrogols extends JFrame {
 				try {
 					Energía.setValue(Energía.getPreviousValue());
 					Puntos.setValue(Puntos.getNextValue());
-					f = Panel.getGraphics();
-					Personaje mons = new Personaje("../Imagenes/monster.jpg");
-					mons.Ocultar(f, Panel.getBackground());
+					g = Panel.getGraphics();
+					mons.Ocultar(g, Panel.getBackground());
 					mons.moverDerecha(Panel.getWidth());
-					PintarMons();
-					ComprobarGhost();
-					ComprobarComida1();
-					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
-					ghost.run();
+					mons.Mostrar(g);
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
+							Energía.setValue(-1);
+						}
+						((Fantasma)vGhost[i]).run();
+					}
+					
+					if(IsPosicionVacia(mons,vComida)==false) {
+						AumentarEnergia(mons,vComida);
+						
+					}
+					for(int j=0;j<maxComida; j=j+1){
+						
+						vComida[j].Mostrar(g);
+						mons.Mostrar(g);
+					}
+					if(IsPosicionVacia(mons,vGhost)==false) {
+						Energía.setValue(-1);
+					}
 									
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
-		        	GameOver.setVisible(true);
-		        }
+		        	gameOver1.setBounds(50, 50, 450, 350);
+					gameOver1.setVisible(true);		           
+		        }			
 			}
 		});
 		btnDerecha.setBounds(607, 383, 91, 21);
@@ -267,20 +303,36 @@ public class JuegoTrogols extends JFrame {
 				try {
 					Energía.setValue(Energía.getPreviousValue());
 					Puntos.setValue(Puntos.getNextValue());
-					f = Panel.getGraphics();
-					Personaje mons = new Personaje("../Imagenes/monster.jpg");
-					mons.Ocultar(f, Panel.getBackground());
+					g = Panel.getGraphics();
+					mons.Ocultar(g, Panel.getBackground());
 					mons.moverAbajo(Panel.getHeight());
-					PintarMons();
-					ComprobarGhost();
-					ComprobarComida1();
-					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
-					ghost.run();
+					mons.Mostrar(g);
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
+							Energía.setValue(-1);
+						}
+						((Fantasma)vGhost[i]).run();
+					}
+					
+					if(IsPosicionVacia(mons,vComida)==false) {
+						AumentarEnergia(mons,vComida);
+						
+					}
+					for(int j=0;j<maxComida; j=j+1){
+						
+						vComida[j].Mostrar(g);
+						mons.Mostrar(g);
+					}
+					if(IsPosicionVacia(mons,vGhost)==false) {
+						Energía.setValue(-1);
+					}
+					
 									
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
-		        	GameOver.setVisible(true);
-		        }
+		        	gameOver1.setBounds(50, 50, 450, 350);
+					gameOver1.setVisible(true);		           
+		        }			
 			}
 		});
 		btnAbajo.setBounds(554, 414, 85, 21);
@@ -293,20 +345,36 @@ public class JuegoTrogols extends JFrame {
 				try {
 					Energía.setValue(Energía.getPreviousValue());
 					Puntos.setValue(Puntos.getNextValue());
-					f = Panel.getGraphics();
-					Personaje mons = new Personaje("../Imagenes/monster.jpg");
-					mons.Ocultar(f, Panel.getBackground());
-					mons.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-					PintarMons();
-					ComprobarGhost();
-					ComprobarComida1();
-					Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
-					ghost.run();
+					g = Panel.getGraphics();
+					mons.Ocultar(g, Panel.getBackground());
+					mons.ColocarAleatorio(Panel.getWidth(),Panel.getHeight());
+					mons.Mostrar(g);
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
+							Energía.setValue(-1);
+						}
+						((Fantasma)vGhost[i]).run();
+					}
+					
+					if(IsPosicionVacia(mons,vComida)==false) {
+						AumentarEnergia(mons,vComida);
+						
+					}
+					for(int j=0;j<maxComida; j=j+1){
+					
+						vComida[j].Mostrar(g);
+						mons.Mostrar(g);
+					}
+					if(IsPosicionVacia(mons,vGhost)==false) {
+						Energía.setValue(-1);
+					}
+					
 									
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
-		        	GameOver.setVisible(true);
-		        }
+		        	gameOver1.setBounds(50, 50, 450, 350);
+					gameOver1.setVisible(true);		           
+		        }			
 			}
 		});
 		btnHiperespacio.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -325,68 +393,80 @@ public class JuegoTrogols extends JFrame {
 		frame.setBounds(100, 100, 850, 850);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-
-	public Fantasma PintarGhost() {
-
-
+	private void InicializarTablero() {
+		g=Panel.getGraphics();
 		Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
-		for(i=0; i<maxFantasmas; i=i+1) {
+		int contFantasma=0;
+		do {
 			ghost.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-			g = Panel.getGraphics();
-			posGhostX[i]=ghost.getX();
-			posGhostY[i]=ghost.getY();
-			ghost.Mostrar(g);
-		
-		}
-		return ghost;
-	}
-	public Personaje PintarMons() {
-
-		Personaje mons= new Personaje("../Imagenes/monster.jpg");
-		g = Panel.getGraphics();
-		posMonsX=mons.getX();
-		posMonsY=mons.getY();
-		mons.Mostrar(g);
-				
-		return mons;
-	}
-	public Comida PintarComida() {
-
-		Comida comida= new Comida("../Imagenes/Hamburguesa.jpg");
-		for(i=0; i<maxComida; i=i+1) {
-			comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-			g = Panel.getGraphics();
-			posComidaX[i]=comida.getX();
-			posComidaY[i]=comida.getY();
-			comida.Mostrar(g);
-		}
-		return comida;
-	}
-	public void ComprobarGhost() {
-		for(i=0; i<maxFantasmas; i=i+1) {
-			if(posGhostX[i]==posMonsX&&posGhostY[i]==posMonsY) 
-				Energía.setValue(0);
-		}
-	}
-		
-	public void ComprobarComida1() {
-		for(i=0; i<=maxComida||comp1==true; i=i+1) {
-			if(posComidaX[i]==posMonsX&&posComidaY[i]==posMonsY) { 
-				comp1=true;
-			}else {
-				comp1=false;
+			if(IsPosicionVacia(ghost,vGhost)){
+				vGhost[contFantasma]=ghost;
+				vGhost[contFantasma].Mostrar(g);
+				contFantasma=contFantasma+1;
+				ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
 			}
-		}
+		}while(contFantasma<maxFantasmas);
+		
+		Comida comida= new Comida("../Imagenes/Hamburguesa.jpg");
+		int contComida=0;
+			do {
+				comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+				if(IsPosicionVacia(comida,vGhost)&&IsPosicionVacia(comida,vComida)){
+					vComida[contComida]=comida;
+					vComida[contComida].Mostrar(g);
+					contComida=contComida+1;
+					comida= new Comida("../Imagenes/Hamburguesa.jpg");
+				}
+		}while(contComida<maxComida);
+			
+
+		mons= new Personaje("../Imagenes/monster.jpg");
+		int contMonstruo=0;
+		do{
+			mons.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+			if(IsPosicionVacia(mons,vComida)&&IsPosicionVacia(mons,vGhost)){
+				mons.Mostrar(g);
+				contMonstruo=contMonstruo+1;
+			}
+		}while(contMonstruo<maxMonstruos);
+		
+		
 	}
-	public void ComprobarComida2() {
-		for(i=0; i<=maxComida||comp2==true; i=i+1) {
-			for(j=0; i<=maxFantasmas||comp2==true; j=j+1) {
-				if(posComidaX[i]==posMonsX&&posComidaY[i]==posMonsY) { 
-				comp1=true;
-			}else {
-				comp1=false;
+	private boolean IsPosicionVacia(Personaje pers, Personaje [] vector) {
+		boolean vacio=true;
+		int tamano=vector.length;
+		
+		for(int i=0; i<tamano && vacio==true; i=i+1) {
+			if(null !=vector[i]) {
+				if(pers.getX()==vector[i].getX() && pers.getY()==vector[i].getY()) {
+					vacio=false;
 				}
 			}
 		}
+		return vacio;
+		
 	}
+	private void AumentarEnergia(Personaje pers,Personaje [] vector) {
+		boolean vacio=true;
+		int tamano=vector.length;
+		int i;
+		for(i=0; i<tamano && vacio==true; i=i+1) {
+			if(null !=vector[i]) {
+				if(pers.getX()==vector[i].getX() && pers.getY()==vector[i].getY()) {
+					vacio=false;
+					do{
+						vector[i].ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+					}while(IsPosicionVacia(vector[i],vector));
+					vector[i].Mostrar(g);
+					Random r=new Random();
+					int e=r.nextInt(10)+1;
+					Energía.setValue((Integer)Energía.getValue()+e);
+				}
+			}
+			
+		}
+		return;
+	}
+	
+	
 }
