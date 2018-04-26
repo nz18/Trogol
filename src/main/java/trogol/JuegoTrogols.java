@@ -185,8 +185,26 @@ public class JuegoTrogols extends JFrame {
 						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
 							Energía.setValue(-1);
 						}
+						int x=vGhost[i].getX();
+						int y=vGhost[i].getY();
 						((Fantasma)vGhost[i]).run();
+						
+						if(IsPosicionVacia(vGhost[i],vComida)==false) {
+							vGhost[i].setX(x);
+							vGhost[i].setY(y);
+							vGhost[i].Mostrar(g);
+							
+						}
+						
+						for(int j=0; j<maxFantasmas; j=j+1) {
+							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
+								vGhost[i].setX(x);
+								vGhost[i].setY(y);
+								vGhost[i].Mostrar(g);
+							}
+						}
 					}
+						
 					
 					if(IsPosicionVacia(mons,vComida)==false) {
 						AumentarEnergia(mons,vComida);
@@ -197,10 +215,13 @@ public class JuegoTrogols extends JFrame {
 						vComida[j].Mostrar(g);
 						mons.Mostrar(g);
 					}
+					
 					if(IsPosicionVacia(mons,vGhost)==false) {
 						Energía.setValue(-1);
 					}
-									
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						vGhost[i].Mostrar(g);
+					}
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
 		        	gameOver1.setBounds(50, 50, 450, 350);
@@ -228,7 +249,24 @@ public class JuegoTrogols extends JFrame {
 						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
 							Energía.setValue(-1);
 						}
+						int x=vGhost[i].getX();
+						int y=vGhost[i].getY();
 						((Fantasma)vGhost[i]).run();
+						
+						if(IsPosicionVacia(vGhost[i],vComida)==false) {
+							vGhost[i].setX(x);
+							vGhost[i].setY(y);
+							vGhost[i].Mostrar(g);
+							
+						}
+						for(int j=0; j<maxFantasmas; j=j+1) {
+							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
+								vGhost[i].setX(x);
+								vGhost[i].setY(y);
+								vGhost[i].Mostrar(g);
+							}
+						}
+						
 					}
 					
 					if(IsPosicionVacia(mons,vComida)==false) {
@@ -243,7 +281,10 @@ public class JuegoTrogols extends JFrame {
 					if(IsPosicionVacia(mons,vGhost)==false) {
 						Energía.setValue(-1);
 					}
-									
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						vGhost[i].Mostrar(g);
+					}
+				
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
 		        	gameOver1.setBounds(50, 50, 450, 350);
@@ -270,9 +311,24 @@ public class JuegoTrogols extends JFrame {
 						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
 							Energía.setValue(-1);
 						}
+						int x=vGhost[i].getX();
+						int y=vGhost[i].getY();
 						((Fantasma)vGhost[i]).run();
+						
+						if(IsPosicionVacia(vGhost[i],vComida)==false) {
+							vGhost[i].setX(x);
+							vGhost[i].setY(y);
+							vGhost[i].Mostrar(g);
+							
+						}
+						for(int j=0; j<maxFantasmas; j=j+1) {
+							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
+								vGhost[i].setX(x);
+								vGhost[i].setY(y);
+								vGhost[i].Mostrar(g);
+							}
+						}
 					}
-					
 					if(IsPosicionVacia(mons,vComida)==false) {
 						AumentarEnergia(mons,vComida);
 						
@@ -285,7 +341,10 @@ public class JuegoTrogols extends JFrame {
 					if(IsPosicionVacia(mons,vGhost)==false) {
 						Energía.setValue(-1);
 					}
-									
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						vGhost[i].Mostrar(g);
+					}
+				
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
 		        	gameOver1.setBounds(50, 50, 450, 350);
@@ -311,7 +370,24 @@ public class JuegoTrogols extends JFrame {
 						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
 							Energía.setValue(-1);
 						}
+						int x=vGhost[i].getX();
+						int y=vGhost[i].getY();
 						((Fantasma)vGhost[i]).run();
+						
+						if(IsPosicionVacia(vGhost[i],vComida)==false) {
+							vGhost[i].setX(x);
+							vGhost[i].setY(y);
+							vGhost[i].Mostrar(g);
+							
+						}
+						for(int j=0; j<maxFantasmas; j=j+1) {
+							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
+								vGhost[i].setX(x);
+								vGhost[i].setY(y);
+								vGhost[i].Mostrar(g);
+							}
+						}
+						
 					}
 					
 					if(IsPosicionVacia(mons,vComida)==false) {
@@ -326,7 +402,9 @@ public class JuegoTrogols extends JFrame {
 					if(IsPosicionVacia(mons,vGhost)==false) {
 						Energía.setValue(-1);
 					}
-					
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						vGhost[i].Mostrar(g);
+					}
 									
 		        } catch (Exception e) {
 		        	Energía.setValue(0);
@@ -353,7 +431,23 @@ public class JuegoTrogols extends JFrame {
 						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
 							Energía.setValue(-1);
 						}
+						int x=vGhost[i].getX();
+						int y=vGhost[i].getY();
 						((Fantasma)vGhost[i]).run();
+						
+						if(IsPosicionVacia(vGhost[i],vComida)==false) {
+							vGhost[i].setX(x);
+							vGhost[i].setY(y);
+							vGhost[i].Mostrar(g);
+							
+						}
+						for(int j=0; j<maxFantasmas; j=j+1) {
+							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
+								vGhost[i].setX(x);
+								vGhost[i].setY(y);
+								vGhost[i].Mostrar(g);
+							}
+						}
 					}
 					
 					if(IsPosicionVacia(mons,vComida)==false) {
@@ -368,7 +462,9 @@ public class JuegoTrogols extends JFrame {
 					if(IsPosicionVacia(mons,vGhost)==false) {
 						Energía.setValue(-1);
 					}
-					
+					for(int i=0; i<maxFantasmas; i=i+1) {
+						vGhost[i].Mostrar(g);
+					}
 									
 		        } catch (Exception e) {
 		        	Energía.setValue(0);

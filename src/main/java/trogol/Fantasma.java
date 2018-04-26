@@ -38,43 +38,23 @@ public class Fantasma extends Personaje implements Runnable{
 		Ocultar(g,Panel.getBackground());
 		switch(mov) {
 		case 0: 
-			for(int i=0; i<maxComida; i=i+1) {
-				for(int j=0; i<maxFantasmas; j=j+1) {
-					if(vGhost[j].getX()!=vComida[i].getX()||(vGhost[j].getY()-50)!=vComida[i].getY()) {
-						moverArriba(0);
-						}
-					}
-			}
+			moverArriba(0);
+			
 		    break;
 		
 		case 1: 
-			for(int i=0; i<maxComida; i=i+1) {
-				for(int j=0; i<maxFantasmas; j=j+1) {
-					if((vGhost[j].getX()-50)!=vComida[i].getX()||vGhost[j].getY()!=vComida[i].getY()) {
-						moverIzquierda(0);
-						}
-					}
-			}
+			moverIzquierda(0);
+			
 		    break;			
 			
 		case 2: 
-			for(int i=0; i<maxComida; i=i+1) {
-				for(int j=0; i<maxFantasmas; j=j+1) {
-					if((vGhost[j].getX()+50)!=vComida[i].getX()||vGhost[j].getY()!=vComida[i].getY()) {
-						moverDerecha(Panel.getWidth());
-						}
-					}
-			}
+			moverDerecha(Panel.getWidth());
+			
 			break;
 						
 		case 3:	
-			for(int i=0; i<maxComida; i=i+1) {
-				for(int j=0; i<maxFantasmas; j=j+1) {
-					if(vGhost[j].getX()!=vComida[i].getX()||(vGhost[j].getY()+50)!=vComida[i].getY()) {
-						moverAbajo(Panel.getWidth());
-						}
-					}
-			}
+			moverAbajo(Panel.getHeight());
+			
 			break;
 		}
 		Mostrar(g);
