@@ -34,7 +34,7 @@ public class Personaje extends Imagen {
 	       
 	    }
 	    @Override
-	    public void Mostrar(Graphics g) {
+	    public void mostrar(Graphics g) {
 	    	g.drawImage(mons, super.getX(), super.getY(), null);
 	    	
 	    }

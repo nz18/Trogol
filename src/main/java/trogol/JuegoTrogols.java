@@ -1,22 +1,21 @@
 package trogol;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JPanel;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
-import javax.swing.SwingConstants;
-import javax.swing.JSpinner;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Random;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+//import java.util.concurrent.TimeUnit;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 
 /**
  * En esta clase se produce el desarrollo del juego trogols
@@ -34,18 +33,26 @@ public class JuegoTrogols extends JFrame {
 	private JPanel Panel;
 	protected Graphics g;
 	private Usuario user;
-	private JButton btnEmpezar;
+	public JButton btnEmpezar;
+	public JButton btnInfo;
+	public JButton btnArriba;
+	public JButton btnAbajo;
+	public JButton btnIzquierda;
+	public JButton btnDerecha;
+	public JButton btnHiperespacio;
+	
 	public void setUsuario(Usuario Usuario1) {
 		user = Usuario1;
 	}
 	private int maxMonstruos=1;
 	public int maxFantasmas=4;
-	public int maxComida=5;
-	private JSpinner Puntos;
-	private JSpinner Energía;
-	public Personaje [] vGhost= new Personaje[maxFantasmas];
-	public Personaje [] vComida= new Personaje[maxComida];
-	private Personaje mons;
+	public static int maxComida=5;
+	private JSpinner puntos;
+	protected JSpinner energia;
+	public Fantasma [] vGhost= new Fantasma[maxFantasmas];
+	public static Comida [] vComida= new Comida[maxComida];
+	public Personaje mons;
+	private boolean partidaIniciada= false;
 	
 	/**
 	 * Launch the application.
@@ -81,51 +88,6 @@ public class JuegoTrogols extends JFrame {
 		lblUsuario.setBounds(121, 78, 205, 26);
 		getContentPane().add(lblUsuario);
 
-		btnEmpezar = new JButton("Empezar");
-		btnEmpezar.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				lblUsuario.setText("Usuario: " + user.CualesmiUsuario());
-				if(mons!=null) {
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						vGhost[i].Ocultar(g, Panel.getBackground());
-						vGhost[i]=null;
-					}
-					for(int i=0; i<maxComida; i=i+1) {
-						vComida[i].Ocultar(g,Panel.getBackground());
-						vComida[i]=null;
-					}
-					mons.Ocultar(g, Panel.getBackground());
-					mons=null;
-				}
-				Energía.setValue(10);
-				Puntos.setValue(0);
-				gameOver1.setVisible(false);
-				InicializarTablero();
-				
-				
-				
-					
-					
-			}
-
-		});
-		btnEmpezar.setFont(new Font("Arial", Font.PLAIN, 15));
-		btnEmpezar.setBounds(516, 40, 99, 30);
-		getContentPane().add(btnEmpezar);
-
-		JButton btnInfo = new JButton("Info");
-		btnInfo.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				Info1.setBounds(516, 40, 550, 350);
-				Info1.setVisible(true);
-			}
-		});
-		btnInfo.setFont(new Font("Arial", Font.PLAIN, 15));
-		btnInfo.setBounds(516, 80, 99, 30);
-		getContentPane().add(btnInfo);
-
 		Panel = new JPanel();
 		Panel.setBackground(Color.WHITE);
 		Panel.setBounds(31, 155, 450, 350);
@@ -154,327 +116,116 @@ public class JuegoTrogols extends JFrame {
 		lblInformacin.setBounds(41, 10, 91, 18);
 		panel_1.add(lblInformacin);
 
-		Puntos = new JSpinner();
-		Puntos.setModel(new SpinnerNumberModel(0, null, null, 1));
-		Puntos.setEnabled(false);
-		Puntos.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		Puntos.setBounds(96, 49, 66, 33);
-		panel_1.add(Puntos);
+		puntos = new JSpinner();
+		puntos.setModel(new SpinnerNumberModel(0, null, null, 1));
+		puntos.setEnabled(false);
+		puntos.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		puntos.setBounds(96, 49, 66, 33);
+		panel_1.add(puntos);
 
-		Energía = new JSpinner();
-		Energía.setEnabled(false);
-		Energía.setModel(new SpinnerNumberModel(10, 0, 100, 1));
-		Energía.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		Energía.setBounds(96, 106, 66, 33);
-		panel_1.add(Energía);
+		energia = new JSpinner();
+		energia.setEnabled(false);
+		energia.setModel(new SpinnerNumberModel(10, 0, 100, 1));
+		energia.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		energia.setBounds(96, 106, 66, 33);
+		panel_1.add(energia);
+		
+		/*Botones y listeners*/
+		btnEmpezar = new JButton("Empezar");
+		btnEmpezar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if(btnEmpezar.isEnabled())
+					botonEmpezar();
+			}
 
-		JButton btnArriba = new JButton("Arriba");
+		});
+		btnEmpezar.setFont(new Font("Arial", Font.PLAIN, 15));
+		btnEmpezar.setBounds(516, 40, 99, 30);
+		btnEmpezar.setEnabled(true);
+		getContentPane().add(btnEmpezar);
+
+		btnInfo = new JButton("Info");
+		btnInfo.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if(btnInfo.isEnabled()){
+					Info1.setBounds(516, 40, 550, 350);
+					Info1.setVisible(true);
+				}
+			}
+		});
+		btnInfo.setFont(new Font("Arial", Font.PLAIN, 15));
+		btnInfo.setBounds(516, 80, 99, 30);
+		btnInfo.setEnabled(true);
+		getContentPane().add(btnInfo);
+
+		btnArriba = new JButton("Arriba");
 		btnArriba.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnArriba.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
-				try {
-					Energía.setValue(Energía.getPreviousValue());
-					Puntos.setValue(Puntos.getNextValue());
-					g = Panel.getGraphics();
-					mons.Ocultar(g, Panel.getBackground());
-					mons.moverArriba(0);
-					mons.Mostrar(g);
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
-							Energía.setValue(-1);
-						}
-						int x=vGhost[i].getX();
-						int y=vGhost[i].getY();
-						((Fantasma)vGhost[i]).run();
-						
-						if(IsPosicionVacia(vGhost[i],vComida)==false) {
-							vGhost[i].setX(x);
-							vGhost[i].setY(y);
-							vGhost[i].Mostrar(g);
-							
-						}
-						
-						for(int j=0; j<maxFantasmas; j=j+1) {
-							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
-								vGhost[i].setX(x);
-								vGhost[i].setY(y);
-								vGhost[i].Mostrar(g);
-							}
-						}
-					}
-						
-					
-					if(IsPosicionVacia(mons,vComida)==false) {
-						AumentarEnergia(mons,vComida);
-						
-					}
-					for(int j=0;j<maxComida; j=j+1){
-						
-						vComida[j].Mostrar(g);
-						mons.Mostrar(g);
-					}
-					
-					if(IsPosicionVacia(mons,vGhost)==false) {
-						Energía.setValue(-1);
-					}
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						vGhost[i].Mostrar(g);
-					}
-		        } catch (Exception e) {
-		        	Energía.setValue(0);
-		        	gameOver1.setBounds(50, 50, 450, 350);
-					gameOver1.setVisible(true);
-				}							
-
+				if(btnArriba.isEnabled())
+					botonArriba();							
 			}
+
 		});
 		btnArriba.setBounds(554, 352, 85, 21);
+		btnArriba.setEnabled(false);
 		getContentPane().add(btnArriba);
 
-		JButton btnIzquierda = new JButton("Izquierda");
+		btnIzquierda = new JButton("Izquierda");
 		btnIzquierda.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnIzquierda.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				try {
-					Energía.setValue(Energía.getPreviousValue());
-					Puntos.setValue(Puntos.getNextValue());
-					g = Panel.getGraphics();
-					mons.Ocultar(g, Panel.getBackground());
-					mons.moverIzquierda(0);
-					mons.Mostrar(g);
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
-							Energía.setValue(-1);
-						}
-						int x=vGhost[i].getX();
-						int y=vGhost[i].getY();
-						((Fantasma)vGhost[i]).run();
-						
-						if(IsPosicionVacia(vGhost[i],vComida)==false) {
-							vGhost[i].setX(x);
-							vGhost[i].setY(y);
-							vGhost[i].Mostrar(g);
-							
-						}
-						for(int j=0; j<maxFantasmas; j=j+1) {
-							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
-								vGhost[i].setX(x);
-								vGhost[i].setY(y);
-								vGhost[i].Mostrar(g);
-							}
-						}
-						
-					}
-					
-					if(IsPosicionVacia(mons,vComida)==false) {
-						AumentarEnergia(mons,vComida);
-						
-					}
-					for(int j=0;j<maxComida; j=j+1){
-						
-						vComida[j].Mostrar(g);
-						mons.Mostrar(g);
-					}
-					if(IsPosicionVacia(mons,vGhost)==false) {
-						Energía.setValue(-1);
-					}
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						vGhost[i].Mostrar(g);
-					}
-				
-		        } catch (Exception e) {
-		        	Energía.setValue(0);
-		        	gameOver1.setBounds(50, 50, 450, 350);
-					gameOver1.setVisible(true);		           
-		        }			
+				if(btnIzquierda.isEnabled())
+					botonIzquierda();			
 			}
 		});
 		btnIzquierda.setBounds(491, 383, 99, 21);
+		btnIzquierda.setEnabled(false);
 		getContentPane().add(btnIzquierda);
 
-		JButton btnDerecha = new JButton("Derecha");
+		btnDerecha = new JButton("Derecha");
 		btnDerecha.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnDerecha.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				try {
-					Energía.setValue(Energía.getPreviousValue());
-					Puntos.setValue(Puntos.getNextValue());
-					g = Panel.getGraphics();
-					mons.Ocultar(g, Panel.getBackground());
-					mons.moverDerecha(Panel.getWidth());
-					mons.Mostrar(g);
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
-							Energía.setValue(-1);
-						}
-						int x=vGhost[i].getX();
-						int y=vGhost[i].getY();
-						((Fantasma)vGhost[i]).run();
-						
-						if(IsPosicionVacia(vGhost[i],vComida)==false) {
-							vGhost[i].setX(x);
-							vGhost[i].setY(y);
-							vGhost[i].Mostrar(g);
-							
-						}
-						for(int j=0; j<maxFantasmas; j=j+1) {
-							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
-								vGhost[i].setX(x);
-								vGhost[i].setY(y);
-								vGhost[i].Mostrar(g);
-							}
-						}
-					}
-					if(IsPosicionVacia(mons,vComida)==false) {
-						AumentarEnergia(mons,vComida);
-						
-					}
-					for(int j=0;j<maxComida; j=j+1){
-						
-						vComida[j].Mostrar(g);
-						mons.Mostrar(g);
-					}
-					if(IsPosicionVacia(mons,vGhost)==false) {
-						Energía.setValue(-1);
-					}
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						vGhost[i].Mostrar(g);
-					}
-				
-		        } catch (Exception e) {
-		        	Energía.setValue(0);
-		        	gameOver1.setBounds(50, 50, 450, 350);
-					gameOver1.setVisible(true);		           
-		        }			
+				if(btnDerecha.isEnabled())
+					botonDerecha();			
 			}
 		});
 		btnDerecha.setBounds(607, 383, 91, 21);
+		btnDerecha.setEnabled(false);
 		getContentPane().add(btnDerecha);
 
-		JButton btnAbajo = new JButton("Abajo");
+		btnAbajo = new JButton("Abajo");
 		btnAbajo.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnAbajo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					Energía.setValue(Energía.getPreviousValue());
-					Puntos.setValue(Puntos.getNextValue());
-					g = Panel.getGraphics();
-					mons.Ocultar(g, Panel.getBackground());
-					mons.moverAbajo(Panel.getHeight());
-					mons.Mostrar(g);
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
-							Energía.setValue(-1);
-						}
-						int x=vGhost[i].getX();
-						int y=vGhost[i].getY();
-						((Fantasma)vGhost[i]).run();
-						
-						if(IsPosicionVacia(vGhost[i],vComida)==false) {
-							vGhost[i].setX(x);
-							vGhost[i].setY(y);
-							vGhost[i].Mostrar(g);
-							
-						}
-						for(int j=0; j<maxFantasmas; j=j+1) {
-							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
-								vGhost[i].setX(x);
-								vGhost[i].setY(y);
-								vGhost[i].Mostrar(g);
-							}
-						}
-						
-					}
-					
-					if(IsPosicionVacia(mons,vComida)==false) {
-						AumentarEnergia(mons,vComida);
-						
-					}
-					for(int j=0;j<maxComida; j=j+1){
-						
-						vComida[j].Mostrar(g);
-						mons.Mostrar(g);
-					}
-					if(IsPosicionVacia(mons,vGhost)==false) {
-						Energía.setValue(-1);
-					}
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						vGhost[i].Mostrar(g);
-					}
-									
-		        } catch (Exception e) {
-		        	Energía.setValue(0);
-		        	gameOver1.setBounds(50, 50, 450, 350);
-					gameOver1.setVisible(true);		           
-		        }			
+		btnAbajo.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if(btnAbajo.isEnabled())
+					botonAbajo();			
 			}
 		});
 		btnAbajo.setBounds(554, 414, 85, 21);
+		btnAbajo.setEnabled(false);
 		getContentPane().add(btnAbajo);
 		
-		JButton btnHiperespacio = new JButton("Hiperespacio");
+		btnHiperespacio = new JButton("Hiperespacio");
 		btnHiperespacio.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				try {
-					Energía.setValue(Energía.getPreviousValue());
-					Puntos.setValue(Puntos.getNextValue());
-					g = Panel.getGraphics();
-					mons.Ocultar(g, Panel.getBackground());
-					mons.ColocarAleatorio(Panel.getWidth(),Panel.getHeight());
-					mons.Mostrar(g);
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						if(vGhost[i].getX()==mons.getX()&&vGhost[i].getY()==mons.getY()) {
-							Energía.setValue(-1);
-						}
-						int x=vGhost[i].getX();
-						int y=vGhost[i].getY();
-						((Fantasma)vGhost[i]).run();
-						
-						if(IsPosicionVacia(vGhost[i],vComida)==false) {
-							vGhost[i].setX(x);
-							vGhost[i].setY(y);
-							vGhost[i].Mostrar(g);
-							
-						}
-						for(int j=0; j<maxFantasmas; j=j+1) {
-							if(i!=j&&vGhost[i].getX()==vGhost[j].getX()&&vGhost[i].getY()==vGhost[j].getY()) {
-								vGhost[i].setX(x);
-								vGhost[i].setY(y);
-								vGhost[i].Mostrar(g);
-							}
-						}
-					}
-					
-					if(IsPosicionVacia(mons,vComida)==false) {
-						AumentarEnergia(mons,vComida);
-						
-					}
-					for(int j=0;j<maxComida; j=j+1){
-					
-						vComida[j].Mostrar(g);
-						mons.Mostrar(g);
-					}
-					if(IsPosicionVacia(mons,vGhost)==false) {
-						Energía.setValue(-1);
-					}
-					for(int i=0; i<maxFantasmas; i=i+1) {
-						vGhost[i].Mostrar(g);
-					}
-									
-		        } catch (Exception e) {
-		        	Energía.setValue(0);
-		        	gameOver1.setBounds(50, 50, 450, 350);
-					gameOver1.setVisible(true);		           
-		        }			
+				if(btnHiperespacio.isEnabled())
+					botonHiperespacio();			
 			}
+
+			
 		});
 		btnHiperespacio.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnHiperespacio.setBounds(516, 445, 172, 21);
+		btnHiperespacio.setEnabled(false);
 		getContentPane().add(btnHiperespacio);
 		
 		initialize();
@@ -489,46 +240,80 @@ public class JuegoTrogols extends JFrame {
 		frame.setBounds(100, 100, 850, 850);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-	private void InicializarTablero() {
+	
+/**
+ * Metodo que inicializa los componentes del juego
+ */
+	private void inicializarTablero() {
 		g=Panel.getGraphics();
-		Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
-		int contFantasma=0;
-		do {
-			ghost.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-			if(IsPosicionVacia(ghost,vGhost)){
-				vGhost[contFantasma]=ghost;
-				vGhost[contFantasma].Mostrar(g);
-				contFantasma=contFantasma+1;
-				ghost=new Fantasma("../Imagenes/fantasma.jpg", Energía, g , Panel);
-			}
-		}while(contFantasma<maxFantasmas);
-		
-		Comida comida= new Comida("../Imagenes/Hamburguesa.jpg");
-		int contComida=0;
-			do {
-				comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-				if(IsPosicionVacia(comida,vGhost)&&IsPosicionVacia(comida,vComida)){
-					vComida[contComida]=comida;
-					vComida[contComida].Mostrar(g);
-					contComida=contComida+1;
-					comida= new Comida("../Imagenes/Hamburguesa.jpg");
-				}
-		}while(contComida<maxComida);
-			
-
+		/*Colocamos el Monstruo*/	
 		mons= new Personaje("../Imagenes/monster.jpg");
 		int contMonstruo=0;
 		do{
 			mons.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-			if(IsPosicionVacia(mons,vComida)&&IsPosicionVacia(mons,vGhost)){
-				mons.Mostrar(g);
-				contMonstruo=contMonstruo+1;
-			}
+			mons.mostrar(g);
+			contMonstruo=contMonstruo+1;
+
 		}while(contMonstruo<maxMonstruos);
 		
+		/*Insertamos las hamburguesas*/
+//		Comida comida= new Comida("../Imagenes/Hamburguesa.jpg");
+//		int contComida=0;
+//			do {
+//				comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+//				if(isPosicionVacia(comida,vComida)&&(mons.getX()!=comida.getX()||mons.getY()!=comida.getY())){
+//					vComida[contComida]=comida;
+//					vComida[contComida].mostrar(g);
+//					contComida=contComida+1;
+//					comida= new Comida("../Imagenes/Hamburguesa.jpg");
+//				}
+//		}while(contComida<maxComida);
+			
+			Comida comida=null;
+			for(int contComida=0;contComida<maxComida;contComida++){
+				comida=new Comida("../Imagenes/Hamburguesa.jpg");
+				comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+				while(!isPosicionVacia(comida,vComida)||(mons.getX()==comida.getX()&&mons.getY()==comida.getY())){
+					comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+				}
+				vComida[contComida]=comida;
+				vComida[contComida].mostrar(g);
+			}
 		
+		/*Insertamos los fantasmas en el tablero*/
+//		Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", energia, g , Panel,mons,vComida,vGhost);
+//		int contFantasma=0;
+//		do {
+//			ghost.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+//			if(isPosicionVacia(ghost,vGhost)&&(mons.getX()!=ghost.getX()||mons.getY()!=ghost.getY())&&isPosicionVacia(ghost,vComida)){
+//				vGhost[contFantasma]=ghost;
+//				vGhost[contFantasma].mostrar(g);
+//				contFantasma=contFantasma+1;
+//				ghost=new Fantasma("../Imagenes/fantasma.jpg", energia, g , Panel, mons, vComida,vGhost);
+//			}
+//		}while(contFantasma<maxFantasmas);
+		
+		
+
+			
+		Fantasma ghost=null;
+		for(int contFantasma=0;contFantasma<maxFantasmas;contFantasma++){
+			ghost=new Fantasma("../Imagenes/fantasma.jpg", energia, g , Panel,mons,vComida,vGhost,1000);
+			ghost.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+			while(!isPosicionVacia(ghost,vGhost)||(mons.getX()==ghost.getX()&&mons.getY()==ghost.getY())||!isPosicionVacia(ghost,vComida)){
+				ghost.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+			}
+			vGhost[contFantasma]=ghost;
+			vGhost[contFantasma].mostrar(g);
+		}
+
 	}
-	private boolean IsPosicionVacia(Personaje pers, Personaje [] vector) {
+	
+	/**
+	 * 
+	 * Comprobamos si la posición de un objeto del juego esta libre con respecto a un vector de objetos
+	 */
+	private boolean isPosicionVacia(Personaje pers, Personaje [] vector) {
 		boolean vacio=true;
 		int tamano=vector.length;
 		
@@ -542,6 +327,8 @@ public class JuegoTrogols extends JFrame {
 		return vacio;
 		
 	}
+	
+	
 	private void AumentarEnergia(Personaje pers,Personaje [] vector) {
 		boolean vacio=true;
 		int tamano=vector.length;
@@ -550,19 +337,224 @@ public class JuegoTrogols extends JFrame {
 			if(null !=vector[i]) {
 				if(pers.getX()==vector[i].getX() && pers.getY()==vector[i].getY()) {
 					vacio=false;
+					Comida comida=new Comida("../Imagenes/Hamburguesa.jpg");
 					do{
-						vector[i].ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-					}while(IsPosicionVacia(vector[i],vector));
-					vector[i].Mostrar(g);
+						comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+					}while(!isPosicionVacia(comida,vComida)&&!isPosicionVacia(comida,vGhost)&&(mons.getX()==comida.getX()&&mons.getY()==comida.getY()));
+					vector[i]=comida;
+					for(int j=0; j<maxComida; j++) {
+						vector[j].mostrar(g);
+					}
 					Random r=new Random();
 					int e=r.nextInt(10)+1;
-					Energía.setValue((Integer)Energía.getValue()+e);
+					energia.setValue((Integer)energia.getValue()+e);
+					if((int) energia.getValue()>100)
+						energia.setValue(100);
 				}
 			}
 			
 		}
 		return;
 	}
+
+/**
+ * 
+ */
+private void botonEmpezar() {
+	lblUsuario.setText("Usuario: " + user.CualesmiUsuario());
+	/*Si no es la primera vez que empezamos la partida debemos borrar todos los personajes*/
+	if(mons!=null) {
+		for(int i=0; i<maxFantasmas; i=i+1) {
+			vGhost[i].ocultar(g, Panel.getBackground());
+			vGhost[i]=null;
+		}
+		for(int i=0; i<maxComida; i=i+1) {
+			vComida[i].ocultar(g,Panel.getBackground());
+			vComida[i]=null;
+		}
+		mons.ocultar(g, Panel.getBackground());
+		mons=null;
+	}
+	energia.setValue(10);
+	puntos.setValue(0);
+	gameOver1.setVisible(false);
+	inicializarTablero();
+	 
+	jugarPartida();
+}
+/**
+ * 
+ */
+private void botonArriba() {
+	try {
+		energia.setValue(energia.getPreviousValue());
+		puntos.setValue(puntos.getNextValue());
+		g = Panel.getGraphics();
+		mons.ocultar(g, Panel.getBackground());
+		mons.moverArriba(0);
+		mons.mostrar(g);
+		
+		if(!isPosicionVacia(mons,vGhost)) {
+			energia.setValue(-1);
+		}	
+		
+		if(isPosicionVacia(mons,vComida)==false) {
+			AumentarEnergia(mons,vComida);
+			
+		}
+		comprobarFinalPartida();
+
+    } catch (Exception e) {
+    	energia.setValue(0);
+    	comprobarFinalPartida();
+    	
+	}
+}
+
+/**
+ * 
+ */
+private void botonIzquierda() {
+	try {
+		energia.setValue(energia.getPreviousValue());
+		puntos.setValue(puntos.getNextValue());
+		g = Panel.getGraphics();
+		mons.ocultar(g, Panel.getBackground());
+		mons.moverIzquierda(0);
+		mons.mostrar(g);
+
+		if(!isPosicionVacia(mons,vGhost)) {
+			energia.setValue(-1);
+		}
+		
+		
+		if(isPosicionVacia(mons,vComida)==false) {
+			AumentarEnergia(mons,vComida);
+			
+		}
+		comprobarFinalPartida();
+
 	
+	} catch (Exception e) {
+		energia.setValue(0);
+		comprobarFinalPartida();
+			           
+	}
+}
+
+/**
+ * 
+ */
+private void botonDerecha() {
+	try {
+		energia.setValue(energia.getPreviousValue());
+		puntos.setValue(puntos.getNextValue());
+		g = Panel.getGraphics();
+		mons.ocultar(g, Panel.getBackground());
+		mons.moverDerecha(Panel.getWidth());
+		mons.mostrar(g);
+		if(!isPosicionVacia(mons,vGhost)) {
+			energia.setValue(-1);
+		}
+		
+		if(isPosicionVacia(mons,vComida)==false) {
+			AumentarEnergia(mons,vComida);
+			
+		}
+		comprobarFinalPartida();
+
 	
+	} catch (Exception e) {
+		energia.setValue(0);
+		comprobarFinalPartida();
+			           
+	}
+}
+
+/**
+ * 
+ */
+private void botonAbajo() {
+	try {
+		energia.setValue(energia.getPreviousValue());
+		puntos.setValue(puntos.getNextValue());
+		g = Panel.getGraphics();
+		mons.ocultar(g, Panel.getBackground());
+		mons.moverAbajo(Panel.getHeight());
+		mons.mostrar(g);
+		if(!isPosicionVacia(mons,vGhost)) {
+			energia.setValue(-1);
+		}
+		
+		if(isPosicionVacia(mons,vComida)==false) {
+			AumentarEnergia(mons,vComida);
+			
+		}
+		comprobarFinalPartida();
+						
+	} catch (Exception e) {
+		energia.setValue(0);
+		comprobarFinalPartida();
+		}
+		
+}
+/**
+ * 
+ */
+private void botonHiperespacio() {
+	try {
+		energia.setValue(energia.getPreviousValue());
+		puntos.setValue(puntos.getNextValue());
+		g = Panel.getGraphics();
+		mons.ocultar(g, Panel.getBackground());
+		mons.ColocarAleatorio(Panel.getWidth(),Panel.getHeight());
+		mons.mostrar(g);
+		if(!isPosicionVacia(mons,vGhost)) {
+			energia.setValue(-1);
+		}
+		
+		if(isPosicionVacia(mons,vComida)==false) {
+			AumentarEnergia(mons,vComida);
+			
+		}
+		comprobarFinalPartida();
+		
+		
+    } catch (Exception e) {
+    	energia.setValue(0);
+    	comprobarFinalPartida();
+    		           
+    }
+}
+   private void jugarPartida(){
+	   partidaIniciada=true;
+	   if (partidaIniciada){
+//		 /**Acciones a llevar a cabo cada turno*/
+			btnEmpezar.setEnabled(false);
+		    btnArriba.setEnabled(true);
+			btnAbajo.setEnabled(true);
+			btnIzquierda.setEnabled(true);
+			btnDerecha.setEnabled(true);
+			btnHiperespacio.setEnabled(true);			
+	    }
+      }
+
+
+   public void comprobarFinalPartida(){
+	   if((int) energia.getValue() <= 0){
+		   partidaIniciada=false;
+		   gameOver1.setBounds(50, 50, 450, 350);
+		   gameOver1.setVisible(true);
+		   if(gameOver1.isVisible()) {
+			    btnEmpezar.setEnabled(true);
+				btnArriba.setEnabled(false);
+				btnAbajo.setEnabled(false);
+				btnIzquierda.setEnabled(false);
+				btnDerecha.setEnabled(false);
+				btnHiperespacio.setEnabled(false);
+			    
+		   }
+	   }
+	   
+   }
 }

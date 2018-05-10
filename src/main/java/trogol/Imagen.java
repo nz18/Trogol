@@ -21,7 +21,7 @@ public class Imagen extends Figura{
 	}
     
     @Override
-    public void Mostrar(Graphics g) {
+    public void mostrar(Graphics g) {
     	g.drawImage(img, super.getX(), super.getY(), null);
     	
     }

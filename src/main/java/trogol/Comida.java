@@ -17,7 +17,7 @@ public class Comida extends Personaje {
 		super.setAncho(comida.getWidth(null));
 	  }
 	   @Override
-	    public void Mostrar(Graphics g) {
+	    public void mostrar(Graphics g) {
 	    	g.drawImage(comida, super.getX(), super.getY(), null);
 	    	
 	    }

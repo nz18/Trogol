@@ -65,7 +65,7 @@ public class Figura extends JuegoTrogols{
 		 return ancho;
 	    }
 
-	 public void Mostrar(Graphics g)
+	 public void mostrar(Graphics g)
 	    {
 	     
 	    	g.setColor(Color.RED);
@@ -74,7 +74,7 @@ public class Figura extends JuegoTrogols{
 	       return;
 	    }
 	
-	 public void Ocultar(Graphics f,Color c)
+	 public void ocultar(Graphics f,Color c)
 	    {
 	    	 f.setColor(c);
 	    	 f.fillRect(x, y, ancho, alto);
