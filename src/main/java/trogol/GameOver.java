@@ -1,13 +1,16 @@
 package trogol;
 
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import java.awt.Font;
 import java.awt.Color;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+/**
+ * Esta clase muestra a el usuario que ha perdido la partida.
+ *
+ */
 public class GameOver extends JFrame{
 
 	private JFrame frame;

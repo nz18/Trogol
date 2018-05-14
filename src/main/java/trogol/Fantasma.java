@@ -13,11 +13,11 @@ public class Fantasma extends Personaje implements Runnable{
 	
 	private Thread hilo;
 	private Image ghost;
-//	private JSpinner energia;
+
 	private Graphics g;
 	private JPanel Panel;
 	private Personaje mons;
-//	private Comida [] vComida= new Comida[maxComida];
+
 	private Fantasma [] vGhost= new Fantasma[maxFantasmas];
 	int espera;
 	
@@ -32,9 +32,7 @@ public class Fantasma extends Personaje implements Runnable{
 		super.setAncho(ghost.getWidth(null));
 		this.espera=espera;
 		this.mons=mons;
-		for(int i=0; i<maxComida; i++) {
-			this.vComida[i]=vComida[i];
-		}
+		
 		for(int i=0; i<maxFantasmas; i++) {
 			this.vGhost[i]=vGhost[i];
 		}
@@ -60,12 +58,13 @@ public class Fantasma extends Personaje implements Runnable{
 			
 		
 	}
-	
+	/**
+	 * Mueve aleatoriamente los fantasmas hacia izquierda, derecha, arriba o abajo
+	 */
 	public void mover() {
 		
 		Random r=new Random();
 		int mov=r.nextInt(4);
-//		ocultar(g,Panel.getBackground());
 		
 		switch(mov) {
 		case 0:{ 
@@ -93,57 +92,57 @@ public class Fantasma extends Personaje implements Runnable{
 		    break;}
 		default:{}
 		}
-//		mostrar(g);
 	}
 	  @Override
 	    public void mostrar(Graphics g) {
 	    	g.drawImage(ghost, super.getX(), super.getY(), null);
 	    	
 	    }
+	  
+	  /**
+		 * Mueve el fantasma a una posicion en la que no haya ni comida ni otro fantasma
+		 */
+	  public void moverFantasma() {
+	    boolean fantasmaMovido=false;
+		ocultar(g,Panel.getBackground());
+	    while(!fantasmaMovido&&(int) energia.getValue()>0) {
+			/*almacenamos la posicion*/
+					
+	    	int x=getX();
+			int y=getY();
+					
+			/*tratamos de moverlo*/
 
-	    public void moverFantasma() {
-	    	boolean fantasmaMovido=false;
-			ocultar(g,Panel.getBackground());
-	    	 while(!fantasmaMovido&&(int) energia.getValue()>0) {
-					/*almacenamos la posicion*/
-					int x=getX();
-					int y=getY();
-					/*tratamos de moverlo*/
-
-					mover();
-					int x2=getX();
-					int y2=getY();
+			mover();
+			if(getX() == mons.getX() && getY() == mons.getY())
+				energia.setValue(-1);
 					
-					if(getX() == mons.getX() 
-						&& getY() == mons.getY())
-						energia.setValue(-1);
+			boolean coincideComida=false;
+			for(int contComida=0; contComida<maxComida; contComida++) {
+				if(getX()==JuegoTrogols.vComida[contComida].getX()&&getY()==JuegoTrogols.vComida[contComida].getY()){
+					coincideComida=true; 
+					JuegoTrogols.vComida[contComida].mostrar(g);
+				}
+			}
 					
-					boolean coincideComida=false;
-					for(int contComida=0; contComida<maxComida; contComida++) {
-						if(getX()==JuegoTrogols.vComida[contComida].getX()&&getY()==JuegoTrogols.vComida[contComida].getY()){
-							coincideComida=true; 
-							JuegoTrogols.vComida[contComida].mostrar(g);
-						}
-					}
+			boolean coincideFantasma=false;
+			for(int contFantasma=0; contFantasma<maxFantasmas; contFantasma++) {
+				if(vGhost[contFantasma]!=null&&vGhost[contFantasma].getX()==getX()&& vGhost[contFantasma].getY()==getY()) {
+					coincideFantasma=true;
+				}
+			}
 					
-					boolean coincideFantasma=false;
-					for(int contFantasma=0; contFantasma<maxFantasmas; contFantasma=contFantasma+1) {
-						if(vGhost[contFantasma]!=null&&vGhost[contFantasma].getX()==getX()&& vGhost[contFantasma].getY()==getY()) {
-							coincideFantasma=true;
-//							vGhost[contFantasma].mostrar(g);
-						}
-					}
+			if(!coincideComida && !coincideFantasma){
+				fantasmaMovido=true;
+			}else{
+				setX(x);
+				setY(y);
+			}
 					
-					if(!coincideComida && !coincideFantasma){
-						fantasmaMovido=true;
-					}else{
-						setX(x);
-						setY(y);
-						
-					}
-					
-			   }
-	    	 mostrar(g);
+		}
+	    mostrar(g);
 	    	 
-	    }
+	  }
+	  
+	  
 }

@@ -22,13 +22,10 @@ import javax.swing.SwingConstants;
  */
 public class JuegoTrogols extends JFrame {
 
-	/**
-	 * No sé que poner xD
-	 */
 	private JFrame frame;
 	private JPanel panel_1;
 	private Info Info1 = new Info();
-	private GameOver gameOver1=new GameOver();
+	private static GameOver gameOver1=new GameOver();
 	private JLabel lblUsuario;
 	private JPanel Panel;
 	protected Graphics g;
@@ -85,7 +82,7 @@ public class JuegoTrogols extends JFrame {
 
 		lblUsuario = new JLabel("Usuario:");
 		lblUsuario.setFont(new Font("Arial", Font.ITALIC, 15));
-		lblUsuario.setBounds(121, 78, 205, 26);
+		lblUsuario.setBounds(168, 78, 205, 26);
 		getContentPane().add(lblUsuario);
 
 		Panel = new JPanel();
@@ -246,7 +243,9 @@ public class JuegoTrogols extends JFrame {
  */
 	private void inicializarTablero() {
 		g=Panel.getGraphics();
+		
 		/*Colocamos el Monstruo*/	
+		
 		mons= new Personaje("../Imagenes/monster.jpg");
 		int contMonstruo=0;
 		do{
@@ -257,45 +256,20 @@ public class JuegoTrogols extends JFrame {
 		}while(contMonstruo<maxMonstruos);
 		
 		/*Insertamos las hamburguesas*/
-//		Comida comida= new Comida("../Imagenes/Hamburguesa.jpg");
-//		int contComida=0;
-//			do {
-//				comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-//				if(isPosicionVacia(comida,vComida)&&(mons.getX()!=comida.getX()||mons.getY()!=comida.getY())){
-//					vComida[contComida]=comida;
-//					vComida[contComida].mostrar(g);
-//					contComida=contComida+1;
-//					comida= new Comida("../Imagenes/Hamburguesa.jpg");
-//				}
-//		}while(contComida<maxComida);
 			
-			Comida comida=null;
-			for(int contComida=0;contComida<maxComida;contComida++){
-				comida=new Comida("../Imagenes/Hamburguesa.jpg");
+		Comida comida=null;
+		for(int contComida=0;contComida<maxComida;contComida++){
+			comida=new Comida("../Imagenes/Hamburguesa.jpg");
+			comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+			while(!isPosicionVacia(comida,vComida)||(mons.getX()==comida.getX()&&mons.getY()==comida.getY())){
 				comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-				while(!isPosicionVacia(comida,vComida)||(mons.getX()==comida.getX()&&mons.getY()==comida.getY())){
-					comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-				}
-				vComida[contComida]=comida;
-				vComida[contComida].mostrar(g);
 			}
+			vComida[contComida]=comida;
+			vComida[contComida].mostrar(g);
+		}
 		
 		/*Insertamos los fantasmas en el tablero*/
-//		Fantasma ghost=new Fantasma("../Imagenes/fantasma.jpg", energia, g , Panel,mons,vComida,vGhost);
-//		int contFantasma=0;
-//		do {
-//			ghost.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-//			if(isPosicionVacia(ghost,vGhost)&&(mons.getX()!=ghost.getX()||mons.getY()!=ghost.getY())&&isPosicionVacia(ghost,vComida)){
-//				vGhost[contFantasma]=ghost;
-//				vGhost[contFantasma].mostrar(g);
-//				contFantasma=contFantasma+1;
-//				ghost=new Fantasma("../Imagenes/fantasma.jpg", energia, g , Panel, mons, vComida,vGhost);
-//			}
-//		}while(contFantasma<maxFantasmas);
-		
-		
 
-			
 		Fantasma ghost=null;
 		for(int contFantasma=0;contFantasma<maxFantasmas;contFantasma++){
 			ghost=new Fantasma("../Imagenes/fantasma.jpg", energia, g , Panel,mons,vComida,vGhost,1000);
@@ -304,7 +278,7 @@ public class JuegoTrogols extends JFrame {
 				ghost.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
 			}
 			vGhost[contFantasma]=ghost;
-			vGhost[contFantasma].mostrar(g);
+			
 		}
 
 	}
@@ -313,7 +287,7 @@ public class JuegoTrogols extends JFrame {
 	 * 
 	 * Comprobamos si la posición de un objeto del juego esta libre con respecto a un vector de objetos
 	 */
-	private boolean isPosicionVacia(Personaje pers, Personaje [] vector) {
+	public boolean isPosicionVacia(Personaje pers, Personaje [] vector) {
 		boolean vacio=true;
 		int tamano=vector.length;
 		
@@ -328,23 +302,22 @@ public class JuegoTrogols extends JFrame {
 		
 	}
 	
-	
-	private void AumentarEnergia(Personaje pers,Personaje [] vector) {
+	/**
+	 * 
+	 * Comprobamos si la posición del monstruo está ocupada por una comida y aumenta su energía
+	 */
+	private void AumentarEnergia() {
 		boolean vacio=true;
-		int tamano=vector.length;
 		int i;
-		for(i=0; i<tamano && vacio==true; i=i+1) {
-			if(null !=vector[i]) {
-				if(pers.getX()==vector[i].getX() && pers.getY()==vector[i].getY()) {
+		for(i=0; i<maxComida && vacio==true; i=i+1) {
+			if(null !=vComida[i]) {
+				if(mons.getX()==vComida[i].getX() && mons.getY()==vComida[i].getY()) {
 					vacio=false;
-					Comida comida=new Comida("../Imagenes/Hamburguesa.jpg");
-					do{
-						comida.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
-					}while(!isPosicionVacia(comida,vComida)&&!isPosicionVacia(comida,vGhost)&&(mons.getX()==comida.getX()&&mons.getY()==comida.getY()));
-					vector[i]=comida;
-					for(int j=0; j<maxComida; j++) {
-						vector[j].mostrar(g);
-					}
+					Comida comida1=new Comida("../Imagenes/Hamburguesa.jpg");
+					comida1.ColocarAleatorio(Panel.getWidth(), Panel.getHeight());
+					vComida[i]=comida1;
+					vComida[i].mostrar(g);
+					
 					Random r=new Random();
 					int e=r.nextInt(10)+1;
 					energia.setValue((Integer)energia.getValue()+e);
@@ -356,205 +329,238 @@ public class JuegoTrogols extends JFrame {
 		}
 		return;
 	}
-
-/**
- * 
- */
-private void botonEmpezar() {
-	lblUsuario.setText("Usuario: " + user.CualesmiUsuario());
-	/*Si no es la primera vez que empezamos la partida debemos borrar todos los personajes*/
-	if(mons!=null) {
-		for(int i=0; i<maxFantasmas; i=i+1) {
-			vGhost[i].ocultar(g, Panel.getBackground());
-			vGhost[i]=null;
+	/**
+	 * 
+	 * Muestra el nombre del usuario e inicia la partida
+	 */
+	private void botonEmpezar() {
+		lblUsuario.setText("Usuario: " + user.CualesmiUsuario());
+		/*Si no es la primera vez que empezamos la partida debemos borrar todos los personajes*/
+		
+		if(mons!=null) {
+			for(int i=0; i<maxFantasmas; i=i+1) {
+				vGhost[i].ocultar(g, Panel.getBackground());
+				vGhost[i]=null;
+			}
+			for(int i=0; i<maxComida; i=i+1) {
+				vComida[i].ocultar(g,Panel.getBackground());
+				vComida[i]=null;
+			}
+			mons.ocultar(g, Panel.getBackground());
+			mons=null;
+			
 		}
-		for(int i=0; i<maxComida; i=i+1) {
-			vComida[i].ocultar(g,Panel.getBackground());
-			vComida[i]=null;
-		}
-		mons.ocultar(g, Panel.getBackground());
-		mons=null;
+		energia.setValue(10);
+		puntos.setValue(0);
+		gameOver1.setVisible(false);
+		inicializarTablero();
+		 
+		jugarPartida();
 	}
-	energia.setValue(10);
-	puntos.setValue(0);
-	gameOver1.setVisible(false);
-	inicializarTablero();
-	 
-	jugarPartida();
-}
-/**
- * 
- */
-private void botonArriba() {
-	try {
-		energia.setValue(energia.getPreviousValue());
-		puntos.setValue(puntos.getNextValue());
-		g = Panel.getGraphics();
-		mons.ocultar(g, Panel.getBackground());
-		mons.moverArriba(0);
-		mons.mostrar(g);
-		
-		if(!isPosicionVacia(mons,vGhost)) {
-			energia.setValue(-1);
-		}	
-		
-		if(isPosicionVacia(mons,vComida)==false) {
-			AumentarEnergia(mons,vComida);
+	/**
+	 * 
+	 * Mueve el mostruo una posición hacia arriba y comprueba con los fantasmas y comida
+	 */
+	private void botonArriba() {
+		try {
+			energia.setValue(energia.getPreviousValue());
+			puntos.setValue(puntos.getNextValue());
+			g = Panel.getGraphics();
+			mons.ocultar(g, Panel.getBackground());
+			mons.moverArriba(0);
+			for(int i=0; i<maxComida; i++) {
+				vComida[i].mostrar(g);
+			}
+			mons.mostrar(g);
 			
-		}
-		comprobarFinalPartida();
+			if(!isPosicionVacia(mons,vGhost)) {
+				energia.setValue(-1);
+			}	
+			
+			if(!isPosicionVacia(mons,vComida)) {
+				AumentarEnergia();
+				
+			}
+			comprobarFinalPartida();
 
-    } catch (Exception e) {
-    	energia.setValue(0);
-    	comprobarFinalPartida();
-    	
+	    } catch (Exception e) {
+	    	energia.setValue(0);
+	    	comprobarFinalPartida();
+	    	
+		}
 	}
-}
 
-/**
- * 
- */
-private void botonIzquierda() {
-	try {
-		energia.setValue(energia.getPreviousValue());
-		puntos.setValue(puntos.getNextValue());
-		g = Panel.getGraphics();
-		mons.ocultar(g, Panel.getBackground());
-		mons.moverIzquierda(0);
-		mons.mostrar(g);
+	/**
+	 * 
+	 * Mueve el mostruo una posición hacia la izquierda y comprueba con los fantasmas y comida
+	 */
+	private void botonIzquierda() {
+		try {
+			energia.setValue(energia.getPreviousValue());
+			puntos.setValue(puntos.getNextValue());
+			g = Panel.getGraphics();
+			mons.ocultar(g, Panel.getBackground());
+			mons.moverIzquierda(0);
+			for(int i=0; i<maxComida; i++) {
+				vComida[i].mostrar(g);
+			}
+			mons.mostrar(g);
 
-		if(!isPosicionVacia(mons,vGhost)) {
-			energia.setValue(-1);
-		}
-		
-		
-		if(isPosicionVacia(mons,vComida)==false) {
-			AumentarEnergia(mons,vComida);
+			if(!isPosicionVacia(mons,vGhost)) {
+				energia.setValue(-1);
+			}
 			
-		}
-		comprobarFinalPartida();
+			
+			if(!isPosicionVacia(mons,vComida)) {
+				AumentarEnergia();
+				
+			}
+			comprobarFinalPartida();
 
-	
-	} catch (Exception e) {
-		energia.setValue(0);
-		comprobarFinalPartida();
-			           
+		
+		} catch (Exception e) {
+			energia.setValue(0);
+			comprobarFinalPartida();
+				           
+		}
 	}
-}
 
-/**
- * 
- */
-private void botonDerecha() {
-	try {
-		energia.setValue(energia.getPreviousValue());
-		puntos.setValue(puntos.getNextValue());
-		g = Panel.getGraphics();
-		mons.ocultar(g, Panel.getBackground());
-		mons.moverDerecha(Panel.getWidth());
-		mons.mostrar(g);
-		if(!isPosicionVacia(mons,vGhost)) {
-			energia.setValue(-1);
-		}
-		
-		if(isPosicionVacia(mons,vComida)==false) {
-			AumentarEnergia(mons,vComida);
+	/**
+	 * 
+	 * Mueve el mostruo una posición hacia la derecha y comprueba con los fantasmas y comida
+	 */
+	private void botonDerecha() {
+		try {
+			energia.setValue(energia.getPreviousValue());
+			puntos.setValue(puntos.getNextValue());
+			g = Panel.getGraphics();
+			mons.ocultar(g, Panel.getBackground());
+			mons.moverDerecha(Panel.getWidth());
+			for(int i=0; i<maxComida; i++) {
+				vComida[i].mostrar(g);
+			}
+			mons.mostrar(g);
+			if(!isPosicionVacia(mons,vGhost)) {
+				energia.setValue(-1);
+			}
 			
-		}
-		comprobarFinalPartida();
+			if(!isPosicionVacia(mons,vComida)) {
+				AumentarEnergia();
+				
+			}
+			comprobarFinalPartida();
 
-	
-	} catch (Exception e) {
-		energia.setValue(0);
-		comprobarFinalPartida();
-			           
+		
+		} catch (Exception e) {
+			energia.setValue(0);
+			comprobarFinalPartida();
+				           
+		}
 	}
-}
 
-/**
- * 
- */
-private void botonAbajo() {
-	try {
-		energia.setValue(energia.getPreviousValue());
-		puntos.setValue(puntos.getNextValue());
-		g = Panel.getGraphics();
-		mons.ocultar(g, Panel.getBackground());
-		mons.moverAbajo(Panel.getHeight());
-		mons.mostrar(g);
-		if(!isPosicionVacia(mons,vGhost)) {
-			energia.setValue(-1);
-		}
-		
-		if(isPosicionVacia(mons,vComida)==false) {
-			AumentarEnergia(mons,vComida);
+	/**
+	 * 
+	 * Mueve el mostruo una posición hacia abajo y comprueba con los fantasmas y comida
+	 */
+	private void botonAbajo() {
+		try {
+			energia.setValue(energia.getPreviousValue());
+			puntos.setValue(puntos.getNextValue());
+			g = Panel.getGraphics();
+			mons.ocultar(g, Panel.getBackground());
+			mons.moverAbajo(Panel.getHeight());
+			for(int i=0; i<maxComida; i++) {
+				vComida[i].mostrar(g);
+			}
+			mons.mostrar(g);
 			
-		}
-		comprobarFinalPartida();
-						
-	} catch (Exception e) {
-		energia.setValue(0);
-		comprobarFinalPartida();
-		}
-		
-}
-/**
- * 
- */
-private void botonHiperespacio() {
-	try {
-		energia.setValue(energia.getPreviousValue());
-		puntos.setValue(puntos.getNextValue());
-		g = Panel.getGraphics();
-		mons.ocultar(g, Panel.getBackground());
-		mons.ColocarAleatorio(Panel.getWidth(),Panel.getHeight());
-		mons.mostrar(g);
-		if(!isPosicionVacia(mons,vGhost)) {
-			energia.setValue(-1);
-		}
-		
-		if(isPosicionVacia(mons,vComida)==false) {
-			AumentarEnergia(mons,vComida);
+			if(!isPosicionVacia(mons,vGhost)) {
+				energia.setValue(-1);
+			}
 			
-		}
-		comprobarFinalPartida();
-		
-		
-    } catch (Exception e) {
-    	energia.setValue(0);
-    	comprobarFinalPartida();
-    		           
-    }
-}
-   private void jugarPartida(){
-	   partidaIniciada=true;
-	   if (partidaIniciada){
-//		 /**Acciones a llevar a cabo cada turno*/
+			if(!isPosicionVacia(mons,vComida)) {
+				AumentarEnergia();
+				
+			}
+			comprobarFinalPartida();
+							
+		} catch (Exception e) {
+			energia.setValue(0);
+			comprobarFinalPartida();
+			}
+			
+	}
+	/**
+	 * 
+	 * Mueve el mostruo hacia una posición aleatoria y comprueba con los fantasmas y comida
+	 */
+	private void botonHiperespacio() {
+		try {
+			energia.setValue(energia.getPreviousValue());
+			puntos.setValue(puntos.getNextValue());
+			g = Panel.getGraphics();
+			mons.ocultar(g, Panel.getBackground());
+			mons.ColocarAleatorio(Panel.getWidth(),Panel.getHeight());
+			for(int i=0; i<maxComida; i++) {
+				vComida[i].mostrar(g);
+			}
+			mons.mostrar(g);
+			
+			if(!isPosicionVacia(mons,vGhost)) {
+				energia.setValue(-1);
+			}
+			
+			if(isPosicionVacia(mons,vComida)==false) {
+				AumentarEnergia();
+				
+			}
+			comprobarFinalPartida();
+			
+			
+	    } catch (Exception e) {
+	    	energia.setValue(0);
+	    	comprobarFinalPartida();
+	    		           
+	    }
+	}
+	   
+	/**
+	 * Inicia la partida y activa los movimientos, desactivanto el botón empezar
+	 */
+	private void jugarPartida(){
+		  partidaIniciada=true;
+		  if (partidaIniciada){
+		 /**Acciones a llevar a cabo cada turno*/
 			btnEmpezar.setEnabled(false);
 		    btnArriba.setEnabled(true);
 			btnAbajo.setEnabled(true);
 			btnIzquierda.setEnabled(true);
 			btnDerecha.setEnabled(true);
 			btnHiperespacio.setEnabled(true);			
-	    }
-      }
-
-
-   public void comprobarFinalPartida(){
-	   if((int) energia.getValue() <= 0){
-		   partidaIniciada=false;
-		   gameOver1.setBounds(50, 50, 450, 350);
-		   gameOver1.setVisible(true);
-		   if(gameOver1.isVisible()) {
-			    btnEmpezar.setEnabled(true);
-				btnArriba.setEnabled(false);
-				btnAbajo.setEnabled(false);
-				btnIzquierda.setEnabled(false);
-				btnDerecha.setEnabled(false);
-				btnHiperespacio.setEnabled(false);
-			    
-		   }
+		  }
 	   }
-	   
-   }
+
+	/**
+	 * Pone fin a la partida, desactiva los movimientos, activanto el botón empezar
+	 */
+	public void comprobarFinalPartida(){
+		 if((int) energia.getValue() <= 0){
+		  partidaIniciada=false;
+		  gameOver1.setBounds(50, 50, 450, 350);
+		  gameOver1.setVisible(true);
+		  if(gameOver1.isVisible()) {
+		    btnEmpezar.setEnabled(true);
+			btnArriba.setEnabled(false);
+			btnAbajo.setEnabled(false);
+			btnIzquierda.setEnabled(false);
+			btnDerecha.setEnabled(false);
+			btnHiperespacio.setEnabled(false);
+			}
+		 }
+	}
+	
 }
+	
+	
+
+

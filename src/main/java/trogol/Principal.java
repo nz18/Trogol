@@ -160,7 +160,6 @@ import javax.swing.SwingConstants;
 			return U;
 			} 
 		else {
-			  System.out.println("El término Nombre o Password está vacío");
 			  lblError.setVisible(true);
 			  lblBienvenido.setVisible(false);
 			  lblBienvenido_1.setVisible(false);
